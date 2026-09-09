@@ -64,14 +64,18 @@ export function navigateToAdmin(
 ) {
   if (typeof window === "undefined") return;
 
-  if (ADMIN_URL && isCrossOrigin(ADMIN_URL)) {
+  // Fall back to the canonical admin URL so this works even when the env var
+  // is missing from the auth app's deployment config.
+  const adminBase = ADMIN_URL || "https://admin.yesp.space";
+
+  if (isCrossOrigin(adminBase)) {
     const tokens = getStoredTokens();
     if (tokens) {
       const frag: Record<string, string> = { at: tokens.at, next: targetPath };
       if (tokens.rt) frag.rt = tokens.rt;
-      window.location.href = `${ADMIN_URL}/bridge#${new URLSearchParams(frag).toString()}`;
+      window.location.href = `${adminBase}/bridge#${new URLSearchParams(frag).toString()}`;
     } else {
-      window.location.href = `${ADMIN_URL}${targetPath}`;
+      window.location.href = `${adminBase}${targetPath}`;
     }
   } else {
     if (router) router.push(targetPath);

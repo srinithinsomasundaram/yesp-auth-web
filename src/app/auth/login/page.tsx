@@ -175,9 +175,12 @@ function LoginContent() {
       router.replace(nextUrl);
       return;
     }
-    // Full URL pointing at the admin origin → bridge tokens there
-    if (ADMIN_URL && nextUrl.startsWith(ADMIN_URL)) {
-      const adminPath = nextUrl.slice(ADMIN_URL.length) || "/admin";
+    // Full URL pointing at the admin origin → bridge tokens there.
+    // Use the same fallback as navigateToAdmin so this works even when
+    // NEXT_PUBLIC_ADMIN_URL is not set on the auth app deployment.
+    const adminBase = ADMIN_URL || "https://admin.yesp.space";
+    if (nextUrl.startsWith(adminBase)) {
+      const adminPath = nextUrl.slice(adminBase.length) || "/admin";
       navigateToAdmin(adminPath, router);
       return;
     }
