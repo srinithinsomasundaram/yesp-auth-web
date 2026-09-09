@@ -22,9 +22,15 @@ function isMidFlow(path: string) {
   return MID_FLOW_PREFIXES.some((p) => path.startsWith(p));
 }
 
-// Trusted origins — only redirect to these to prevent open redirect attacks
+// Canonical fallbacks used when env vars are absent from the deployment config
+const ADMIN_BASE   = ADMIN_URL   || "https://admin.yesp.space";
+const CONSOLE_BASE = CONSOLE_URL || "https://accounts.yesp.space";
+
+// Trusted origins — only redirect to these to prevent open redirect attacks.
+// Always include the canonical production URLs so the guard works even when
+// NEXT_PUBLIC_ADMIN_URL / NEXT_PUBLIC_CONSOLE_URL are not set on this deployment.
 const TRUSTED_ORIGINS = new Set(
-  [ADMIN_URL, CONSOLE_URL, AUTH_URL].filter(Boolean)
+  [ADMIN_URL, CONSOLE_URL, AUTH_URL, ADMIN_BASE, CONSOLE_BASE].filter(Boolean)
 );
 
 function isTrustedNext(next: string): boolean {
@@ -49,14 +55,14 @@ function resolveRedirect(
 ) {
   if (next && isTrustedNext(next)) {
     // Full URL pointing to the admin app
-    if (ADMIN_URL && next.startsWith(ADMIN_URL)) {
-      const path = next.slice(ADMIN_URL.length) || "/admin";
+    if (next.startsWith(ADMIN_BASE)) {
+      const path = next.slice(ADMIN_BASE.length) || "/admin";
       navigateToAdmin(path, router);
       return;
     }
     // Full URL pointing to the console app
-    if (CONSOLE_URL && next.startsWith(CONSOLE_URL)) {
-      const path = next.slice(CONSOLE_URL.length) || "/console";
+    if (next.startsWith(CONSOLE_BASE)) {
+      const path = next.slice(CONSOLE_BASE.length) || "/console";
       navigateToConsole(path, router);
       return;
     }
