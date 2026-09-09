@@ -4,6 +4,20 @@ export const AUTH_URL    = (process.env.NEXT_PUBLIC_AUTH_URL    || "").replace(/
 export const CONSOLE_URL = (process.env.NEXT_PUBLIC_CONSOLE_URL || "").replace(/\/$/, "");
 export const ADMIN_URL   = (process.env.NEXT_PUBLIC_ADMIN_URL   || "").replace(/\/$/, "");
 
+const TRUSTED = new Set([AUTH_URL, CONSOLE_URL, ADMIN_URL].filter(Boolean));
+
+/** Returns the path if it's a safe internal redirect, otherwise falls back to the default. */
+export function sanitizeNext(next: string | null | undefined, fallback: string): string {
+  if (!next) return fallback;
+  if (next.startsWith("/")) return next;          // relative paths are safe
+  try {
+    const url = new URL(next);
+    return TRUSTED.has(`${url.protocol}//${url.host}`) ? next : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 function isCrossOrigin(targetUrl: string): boolean {
   if (!targetUrl || typeof window === "undefined") return false;
   try {
