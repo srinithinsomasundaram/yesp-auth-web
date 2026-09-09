@@ -37,7 +37,7 @@ export default function BridgePage() {
 
       if (relay && isTrustedYespOrigin(relay)) {
         const relayUrl = new URL(relay);
-        relayUrl.hash = new URLSearchParams({ at, rt, next }).toString();
+        relayUrl.hash = new URLSearchParams({ at, ...(rt ? { rt } : {}), next }).toString();
         window.location.href = relayUrl.toString();
         return;
       }
