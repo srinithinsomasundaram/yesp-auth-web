@@ -1,5 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
+import { NavbarUser, NavbarUserMobile } from "@/components/NavbarUser";
 
 export default function HelpLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -27,20 +28,16 @@ export default function HelpLayout({ children }: { children: React.ReactNode }) 
           >
             About Yesp
           </a>
-          <Link
-            href="/auth/login"
-            className="px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-          >
-            Sign in
-          </Link>
+          <Suspense fallback={null}>
+            <NavbarUser />
+          </Suspense>
         </nav>
 
-        <Link
-          href="/auth/login"
-          className="sm:hidden text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
-        >
-          Sign in
-        </Link>
+        <div className="sm:hidden">
+          <Suspense fallback={null}>
+            <NavbarUserMobile />
+          </Suspense>
+        </div>
       </header>
 
       <main className="flex-1">{children}</main>
