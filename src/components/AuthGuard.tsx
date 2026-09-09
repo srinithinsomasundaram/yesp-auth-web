@@ -87,6 +87,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     // Skip guard on mid-auth pages
     if (isMidFlow(pathname)) return;
 
+    // User just signed out — never silently refresh. Avoids loop where the
+    // RT cookie is still valid and would immediately send the user back to console.
+    if (searchParams.get("logged_out") === "1") return;
+
     const next = searchParams.get("next");
 
     const check = async () => {
