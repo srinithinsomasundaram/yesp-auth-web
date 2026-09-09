@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import { AuthGuard } from "@/components/AuthGuard";
 
@@ -232,7 +233,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* Centered content */}
       <main className="flex-1 flex items-start sm:items-center justify-center px-5 sm:px-6 py-8 sm:py-10">
         <div className="w-full max-w-[400px] animate-fade-slide-up">
-          <AuthGuard>{children}</AuthGuard>
+          <Suspense fallback={null}><AuthGuard>{children}</AuthGuard></Suspense>
         </div>
       </main>
 
