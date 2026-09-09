@@ -31,8 +31,8 @@ export default function BridgePage() {
     // relay= forwards tokens to another Yesp app's bridge page
     const relay = new URLSearchParams(window.location.search).get("relay");
 
-    if (at && rt) {
-      setTokens(at, rt);
+    if (at) {
+      setTokens(at, rt ?? "");
       history.replaceState(null, "", "/bridge");
 
       if (relay && isTrustedYespOrigin(relay)) {

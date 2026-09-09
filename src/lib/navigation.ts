@@ -67,8 +67,9 @@ export function navigateToAdmin(
   if (ADMIN_URL && isCrossOrigin(ADMIN_URL)) {
     const tokens = getStoredTokens();
     if (tokens) {
-      const frag = new URLSearchParams({ at: tokens.at, next: targetPath });
-      window.location.href = `${ADMIN_URL}/bridge#${frag.toString()}`;
+      const frag: Record<string, string> = { at: tokens.at, next: targetPath };
+      if (tokens.rt) frag.rt = tokens.rt;
+      window.location.href = `${ADMIN_URL}/bridge#${new URLSearchParams(frag).toString()}`;
     } else {
       window.location.href = `${ADMIN_URL}${targetPath}`;
     }
