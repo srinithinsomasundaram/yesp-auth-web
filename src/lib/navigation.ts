@@ -37,13 +37,16 @@ export function navigateToConsole(
 ) {
   if (typeof window === "undefined") return;
 
-  if (CONSOLE_URL && isCrossOrigin(CONSOLE_URL)) {
+  const consoleBase = CONSOLE_URL || "https://accounts.yesp.space";
+
+  if (isCrossOrigin(consoleBase)) {
     const tokens = getStoredTokens();
     if (tokens) {
-      const frag = new URLSearchParams({ at: tokens.at, next: targetPath });
-      window.location.href = `${CONSOLE_URL}/bridge#${frag.toString()}`;
+      const frag: Record<string, string> = { at: tokens.at, next: targetPath };
+      if (tokens.rt) frag.rt = tokens.rt;
+      window.location.href = `${consoleBase}/bridge#${new URLSearchParams(frag).toString()}`;
     } else {
-      window.location.href = `${CONSOLE_URL}${targetPath}`;
+      window.location.href = `${consoleBase}${targetPath}`;
     }
   } else {
     if (router) router.push(targetPath);

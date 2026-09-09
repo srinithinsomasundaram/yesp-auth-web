@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const AUTH_ORIGIN = (process.env.NEXT_PUBLIC_AUTH_URL ?? "https://auth.yesp.space").replace(/\/$/, "");
+const AUTH_ORIGIN    = (process.env.NEXT_PUBLIC_AUTH_URL    ?? "https://auth.yesp.space").replace(/\/$/, "");
+const CONSOLE_ORIGIN = (process.env.NEXT_PUBLIC_CONSOLE_URL ?? "https://accounts.yesp.space").replace(/\/$/, "");
 
 function corsHeaders(req: NextRequest, res: NextResponse): NextResponse {
   const origin = req.headers.get("origin") || req.headers.get("referer");
@@ -40,6 +41,11 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/api");
 
   if (!allowed) {
+    // /console/* paths belong on the accounts app — redirect there instead of to login
+    // (prevents a redirect loop when NEXT_PUBLIC_CONSOLE_URL is not set in the env)
+    if (pathname.startsWith("/console") || pathname.startsWith("/bridge")) {
+      return NextResponse.redirect(`${CONSOLE_ORIGIN}${pathname}${request.nextUrl.search}`);
+    }
     return corsHeaders(request, NextResponse.redirect(`${AUTH_ORIGIN}/auth/login`));
   }
 

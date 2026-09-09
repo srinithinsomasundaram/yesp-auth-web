@@ -14,6 +14,8 @@ const MID_FLOW_PREFIXES = [
   "/auth/oauth",
   "/auth/verify-email",
   "/auth/authorize",
+  "/auth/register",
+  "/auth/forgot-password",
 ];
 
 function isMidFlow(path: string) {
@@ -105,8 +107,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         });
         if (!res.ok) return; // No valid session — stay on form
 
-        const data = await res.json() as { accessToken: string };
-        setTokens(data.accessToken, "");
+        const data = await res.json() as { accessToken: string; refreshToken?: string };
+        setTokens(data.accessToken, data.refreshToken ?? "");
 
         // Cookie restore worked — redirect away from auth page
         getMe()
