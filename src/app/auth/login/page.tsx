@@ -10,7 +10,7 @@ import { Spinner } from "@/components/Spinner";
 import { login, setTokens, getStoredTokens, getAccessToken, getMfaMethods, clearTokens, ApiError } from "@/lib/api";
 import { setMfaPendingUser } from "@/lib/session";
 import { getMsg } from "@/lib/messages";
-import { navigateToConsole, navigateToAdmin, ADMIN_URL } from "@/lib/navigation";
+import { navigateToConsole, navigateToAdmin, navigateToHireflow, ADMIN_URL, HIREFLOW_URL } from "@/lib/navigation";
 
 type Step = "email" | "password" | "sso";
 
@@ -178,10 +178,16 @@ function LoginContent() {
     // Full URL pointing at the admin origin → bridge tokens there.
     // Use the same fallback as navigateToAdmin so this works even when
     // NEXT_PUBLIC_ADMIN_URL is not set on the auth app deployment.
-    const adminBase = ADMIN_URL || "https://admin.yesp.space";
+    const adminBase    = ADMIN_URL    || "https://admin.yesp.space";
+    const hireflowBase = HIREFLOW_URL || "https://hireflow.yesp.space";
     if (nextUrl.startsWith(adminBase)) {
       const adminPath = nextUrl.slice(adminBase.length) || "/admin";
       navigateToAdmin(adminPath, router);
+      return;
+    }
+    if (nextUrl.startsWith(hireflowBase)) {
+      const hireflowPath = nextUrl.slice(hireflowBase.length) || "/dashboard";
+      navigateToHireflow(hireflowPath, router);
       return;
     }
     // /console/* paths always belong on the accounts domain

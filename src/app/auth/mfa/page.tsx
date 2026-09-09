@@ -8,7 +8,7 @@ import { Spinner } from "@/components/Spinner";
 import { AuthLink } from "@/components/AuthCard";
 import { challengeTotp, getStoredTokens, ApiError } from "@/lib/api";
 import { getMfaPendingUser, clearMfaPendingUser } from "@/lib/session";
-import { navigateToAuth, navigateToConsole } from "@/lib/navigation";
+import { navigateToAuth, navigateToConsole, navigateToHireflow, HIREFLOW_URL } from "@/lib/navigation";
 
 type Mode = "totp" | "recovery";
 
@@ -48,6 +48,11 @@ function MfaContent() {
         window.location.href = `${redirectUri}#${hash}`;
         return;
       }
+    }
+    const hireflowBase = HIREFLOW_URL || "https://hireflow.yesp.space";
+    if (nextUrl.startsWith(hireflowBase)) {
+      navigateToHireflow(nextUrl.slice(hireflowBase.length) || "/dashboard", router);
+      return;
     }
     navigateToConsole(nextUrl, router);
   }
