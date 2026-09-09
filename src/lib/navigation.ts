@@ -1,10 +1,11 @@
 import { getStoredTokens } from "./api";
 
-export const AUTH_URL    = (process.env.NEXT_PUBLIC_AUTH_URL    || "").replace(/\/$/, "");
-export const CONSOLE_URL = (process.env.NEXT_PUBLIC_CONSOLE_URL || "").replace(/\/$/, "");
-export const ADMIN_URL   = (process.env.NEXT_PUBLIC_ADMIN_URL   || "").replace(/\/$/, "");
+export const AUTH_URL     = (process.env.NEXT_PUBLIC_AUTH_URL     || "").replace(/\/$/, "");
+export const CONSOLE_URL  = (process.env.NEXT_PUBLIC_CONSOLE_URL  || "").replace(/\/$/, "");
+export const ADMIN_URL    = (process.env.NEXT_PUBLIC_ADMIN_URL    || "").replace(/\/$/, "");
+export const HIREFLOW_URL = (process.env.NEXT_PUBLIC_HIREFLOW_URL || "").replace(/\/$/, "");
 
-const TRUSTED = new Set([AUTH_URL, CONSOLE_URL, ADMIN_URL].filter(Boolean));
+const TRUSTED = new Set([AUTH_URL, CONSOLE_URL, ADMIN_URL, HIREFLOW_URL].filter(Boolean));
 
 /** Returns the path if it's a safe internal redirect, otherwise falls back to the default. */
 export function sanitizeNext(next: string | null | undefined, fallback: string): string {
@@ -76,6 +77,33 @@ export function navigateToAdmin(
       window.location.href = `${adminBase}/bridge#${new URLSearchParams(frag).toString()}`;
     } else {
       window.location.href = `${adminBase}${targetPath}`;
+    }
+  } else {
+    if (router) router.push(targetPath);
+    else window.location.href = targetPath;
+  }
+}
+
+/**
+ * Navigates to Yesp HireFlow (hireflow.yesp.space / localhost:3004).
+ * Passes tokens via /bridge fragment when crossing origins.
+ */
+export function navigateToHireflow(
+  targetPath: string = "/dashboard",
+  router?: { push: (url: string) => void; replace: (url: string) => void }
+) {
+  if (typeof window === "undefined") return;
+
+  const hireflowBase = HIREFLOW_URL || "https://hireflow.yesp.space";
+
+  if (isCrossOrigin(hireflowBase)) {
+    const tokens = getStoredTokens();
+    if (tokens) {
+      const frag: Record<string, string> = { at: tokens.at, next: targetPath };
+      if (tokens.rt) frag.rt = tokens.rt;
+      window.location.href = `${hireflowBase}/bridge#${new URLSearchParams(frag).toString()}`;
+    } else {
+      window.location.href = `${hireflowBase}${targetPath}`;
     }
   } else {
     if (router) router.push(targetPath);

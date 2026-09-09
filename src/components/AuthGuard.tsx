@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { isAuthenticated } from "@/lib/session";
 import { getMe, setTokens, clearTokens } from "@/lib/api";
-import { navigateToConsole, navigateToAdmin, AUTH_URL, ADMIN_URL, CONSOLE_URL } from "@/lib/navigation";
+import { navigateToConsole, navigateToAdmin, navigateToHireflow, AUTH_URL, ADMIN_URL, CONSOLE_URL, HIREFLOW_URL } from "@/lib/navigation";
 
 // Mid-auth flows — user may be partially authenticated (e.g. passed password, not MFA yet).
 // Never redirect these away to the console/admin.
@@ -23,14 +23,15 @@ function isMidFlow(path: string) {
 }
 
 // Canonical fallbacks used when env vars are absent from the deployment config
-const ADMIN_BASE   = ADMIN_URL   || "https://admin.yesp.space";
-const CONSOLE_BASE = CONSOLE_URL || "https://accounts.yesp.space";
+const ADMIN_BASE    = ADMIN_URL    || "https://admin.yesp.space";
+const CONSOLE_BASE  = CONSOLE_URL  || "https://accounts.yesp.space";
+const HIREFLOW_BASE = HIREFLOW_URL || "https://hireflow.yesp.space";
 
 // Trusted origins — only redirect to these to prevent open redirect attacks.
 // Always include the canonical production URLs so the guard works even when
-// NEXT_PUBLIC_ADMIN_URL / NEXT_PUBLIC_CONSOLE_URL are not set on this deployment.
+// env vars are absent from the deployment config.
 const TRUSTED_ORIGINS = new Set(
-  [ADMIN_URL, CONSOLE_URL, AUTH_URL, ADMIN_BASE, CONSOLE_BASE].filter(Boolean)
+  [ADMIN_URL, CONSOLE_URL, AUTH_URL, HIREFLOW_URL, ADMIN_BASE, CONSOLE_BASE, HIREFLOW_BASE].filter(Boolean)
 );
 
 function isTrustedNext(next: string): boolean {
@@ -58,6 +59,12 @@ function resolveRedirect(
     if (next.startsWith(ADMIN_BASE)) {
       const path = next.slice(ADMIN_BASE.length) || "/admin";
       navigateToAdmin(path, router);
+      return;
+    }
+    // Full URL pointing to hireflow
+    if (next.startsWith(HIREFLOW_BASE)) {
+      const path = next.slice(HIREFLOW_BASE.length) || "/dashboard";
+      navigateToHireflow(path, router);
       return;
     }
     // Full URL pointing to the console app
